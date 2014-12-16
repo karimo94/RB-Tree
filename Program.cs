@@ -18,6 +18,9 @@ namespace newrbtree
     }
     class RB
     {
+        /// <summary>
+        /// New object of type Node
+        /// </summary>
         class Node
         {
             public Color colour;
@@ -30,10 +33,15 @@ namespace newrbtree
             public Node(Color colour) { this.colour = colour; }
         }
         private Node root;
+        /// <summary>
+        /// New instance of a Red-Black tree object
+        /// </summary>
         public RB() { }
         /// <summary>
         /// Left Rotate
         /// </summary>
+        /// <param name="X"></param>
+        /// <returns>Node</returns>
         private Node LeftRotate(Node X)
         {
             Node Y = X.right;
@@ -75,12 +83,23 @@ namespace newrbtree
             X.parent = Y.parent;
             if (Y.parent != null)
             {
-                //YOU ARE HERE
+                root = X;
             }
+            else if (Y == Y.parent.right)
+            {
+                Y.parent.left = X;
+            }
+            else
+            {
+                Y.parent.right = X;
+            }
+            X.right = Y;
+            Y.parent = X;
+            return X;
             
         }
         /// <summary>
-        /// DisplayTree and Find
+        /// Display Tree
         /// </summary>
         public void DisplayTree()
         {
@@ -94,6 +113,10 @@ namespace newrbtree
                 InOrderDisplay(root);
             }
         }
+        /// <summary>
+        /// Find item in the tree
+        /// </summary>
+        /// <param name="key"></param>
         public void Find(int key)
         {
             bool isFound = false;
@@ -126,6 +149,15 @@ namespace newrbtree
                 Console.WriteLine("{0} not found", key);
             }
         }
+        /// <summary>
+        /// Insert a new object into the RB Tree
+        /// </summary>
+        /// <param name="item"></param>
+        public void Insert(int item)
+        {
+            Node n = new Node(item);
+            InsertFixUp(n);
+        }
         private void InOrderDisplay(Node current)
         {
             if (current != null)
@@ -134,6 +166,41 @@ namespace newrbtree
                 Console.Write("({0}) ", current.data);
                 InOrderDisplay(current.right);
             }
+        }
+        private void InsertFixUp(Node item)
+        {
+            Node Y = null;
+            while (item.parent.colour == Color.Red)
+            {
+                if (item.parent == item.parent.parent.left)
+                {
+                    Y = item.parent.parent.right;
+                    if (Y.colour == Color.Red)//Case 1
+                    {
+                        item.parent.colour = Color.Black;
+                        Y.colour = Color.Black;
+                        item.parent.parent.colour = Color.Red;
+                        item = item.parent.parent;
+                    }
+                    else if (item == item.parent.right)//Case 2
+                    {
+                        item = item.parent;
+                        LeftRotate(item);
+                    }
+                    //Case 3
+                    item.parent.colour = Color.Black;
+                    item.parent.parent.colour = Color.Red;
+                    RightRotate(item.parent.parent);
+                }
+                else
+                {
+
+                }
+            }
+        }
+        private void Delete(Node item)
+        {
+
         }
     }
 }

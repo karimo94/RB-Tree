@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -41,8 +41,8 @@ namespace newrbtree
         /// Left Rotate
         /// </summary>
         /// <param name="X"></param>
-        /// <returns>Node</returns>
-        private Node LeftRotate(Node X)
+        /// <returns>void</returns>
+        private void LeftRotate(Node X)
         {
             Node Y = X.right;
             X.right = Y.left;
@@ -65,14 +65,14 @@ namespace newrbtree
             }
             Y.left = X;
             X.parent = Y;
-            return Y;
+            
         }
         /// <summary>
         /// Rotate Right
         /// </summary>
         /// <param name="Y"></param>
-        /// <returns>Node</returns>
-        private Node RightRotate(Node Y)
+        /// <returns>void</returns>
+        private void RightRotate(Node Y)
         {
             Node X = Y.left;
             Y.left = X.right;
@@ -95,7 +95,6 @@ namespace newrbtree
             }
             X.right = Y;
             Y.parent = X;
-            return X;
             
         }
         /// <summary>
@@ -182,19 +181,20 @@ namespace newrbtree
                         item.parent.parent.colour = Color.Red;
                         item = item.parent.parent;
                     }
-                    else if (item == item.parent.right)//Case 2
+                    else if (item == item.parent.right)//Case 2:
                     {
                         item = item.parent;
                         LeftRotate(item);
                     }
-                    //Case 3
+                    //Case 3: recolour & rotate
                     item.parent.colour = Color.Black;
                     item.parent.parent.colour = Color.Red;
                     RightRotate(item.parent.parent);
                 }
                 else
                 {
-
+                    //mirror image of code above
+                    
                 }
             }
         }

@@ -152,7 +152,7 @@ namespace newrbtree
         /// Insert a new object into the RB Tree
         /// </summary>
         /// <param name="item"></param>
-        public void Insert(int item)
+        public void Insert(int item)//follow method as described on book
         {
             Node n = new Node(item);
             InsertFixUp(n);
@@ -181,7 +181,7 @@ namespace newrbtree
                         item.parent.parent.colour = Color.Red;
                         item = item.parent.parent;
                     }
-                    else if (item == item.parent.right)//Case 2:
+                    else if (item == item.parent.right)//Case 2
                     {
                         item = item.parent;
                         LeftRotate(item);
@@ -194,7 +194,27 @@ namespace newrbtree
                 else
                 {
                     //mirror image of code above
-                    
+                    Node X = null;
+                    while (item.parent.colour == Color.Black)
+                    {
+                        X = item.parent.parent.left;
+                        if (X.colour == Color.Black)//Case 1
+                        {
+                            item.parent.colour = Color.Red;
+                            X.colour = Color.Red;
+                            item.parent.parent.colour = Color.Black;
+                            item = item.parent.parent;
+                        }
+                        else if (item == item.parent.left)//Case 2
+                        {
+                            item = item.parent;
+                            RightRotate(item);
+                        }
+                        //Case 3: recolour & rotate
+                        item.parent.colour = Color.Red;
+                        item.parent.parent.colour = Color.Black;
+                        LeftRotate(item.parent.parent);
+                    }
                 }
             }
         }

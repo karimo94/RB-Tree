@@ -187,7 +187,6 @@ namespace newrbtree
                 {
                     X = X.right;
                 }
-            }
                 newItem.parent = Y;
                 if (Y == null)
                 {
@@ -216,7 +215,7 @@ namespace newrbtree
                 InOrderDisplay(current.right);
             }
         }
-        private void InsertFixUp(Node item)//problem lies here
+        private void InsertFixUp(Node item)
         {
             //Checks Red-Black Tree properties
             while (item.parent.colour == Color.Red)

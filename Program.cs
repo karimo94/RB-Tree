@@ -28,7 +28,12 @@ namespace newrbtree
     class RB
     {
         /// <summary>
-        /// New object of type Node
+        /// Object of type Node contains 4 properties
+        /// Colour
+        /// Left
+        /// Right
+        /// Parent
+        /// Data
         /// </summary>
         public class Node
         {
@@ -63,12 +68,15 @@ namespace newrbtree
             {
                 Y.left.parent = X;
             }
-            Y.parent = X.parent;//link X's parent to Y
+            if (Y != null)
+            {
+                Y.parent = X.parent;//link X's parent to Y
+            }
             if (X.parent == null)
             {
                 root = Y;
             }
-            else if (X == X.parent.left)
+            if (X == X.parent.left)
             {
                 X.parent.left = Y;
             }
@@ -77,7 +85,10 @@ namespace newrbtree
                 X.parent.right = Y;
             }
             Y.left = X; //put X on Y's left
-            X.parent = Y;
+            if (X != null)
+            {
+                X.parent = Y;
+            }
             
         }
         /// <summary>
@@ -85,30 +96,37 @@ namespace newrbtree
         /// </summary>
         /// <param name="Y"></param>
         /// <returns>void</returns>
-        private void RightRotate(Node Y)
+        private void RightRotate(Node Y) 
         {
+            // right rotate is simply mirror code from left rotate
             Node X = Y.left;
             Y.left = X.right;
             if (X.right != null)
             {
                 X.right.parent = Y;
             }
-            X.parent = Y.parent;
+            if (X != null)
+            {
+                X.parent = Y.parent;
+            }
             if (Y.parent == null)
             {
                 root = X;
-            }
-            else if (Y == Y.parent.right)
+            } 
+            if (Y == Y.parent.right)
             {
-                Y.parent.left = X;
+                 Y.parent.right = X;
             }
-            else
+            if(Y == Y.parent.left)
             {
-                Y.parent.right = X;
+                 Y.parent.left = X;
             }
-            X.right = Y;
-            Y.parent = X;
-            
+
+            X.right = Y;//put Y on X's right
+            if (Y != null)
+            {
+                Y.parent = X;
+            }
         }
         /// <summary>
         /// Display Tree
@@ -187,24 +205,24 @@ namespace newrbtree
                 {
                     X = X.right;
                 }
-                newItem.parent = Y;
-                if (Y == null)
-                {
-                    root = newItem;
-                }
-                else if (newItem.data < Y.data)
-                {
-                    Y.left = newItem;
-                }
-                else
-                {
-                    Y.right = newItem;
-                }
-                newItem.left = null;
-                newItem.right = null;
-                newItem.colour = Color.Red;//colour the new node red
-                InsertFixUp(newItem);//call method to check for violations and fix
             }
+            newItem.parent = Y;
+            if (Y == null)
+            {
+                root = newItem;
+            }
+            else if (newItem.data < Y.data)
+            {
+                Y.left = newItem;
+            }
+            else
+            {
+                Y.right = newItem;
+            }
+            newItem.left = null;
+            newItem.right = null;
+            newItem.colour = Color.Red;//colour the new node red
+            InsertFixUp(newItem);//call method to check for violations and fix
         }
         private void InOrderDisplay(Node current)
         {
@@ -218,28 +236,32 @@ namespace newrbtree
         private void InsertFixUp(Node item)
         {
             //Checks Red-Black Tree properties
-            while (item.parent.colour == Color.Red)
+            while (item != root && item.parent.colour == Color.Red)
             {
                 /*We have a violation*/
                 if (item.parent == item.parent.parent.left)
                 {
                     Node Y = item.parent.parent.right;
-                    if (Y.colour == Color.Red)//Case 1
+                    if (Y != null && Y.colour == Color.Red)//Case 1: uncle is red
                     {
                         item.parent.colour = Color.Black;
                         Y.colour = Color.Black;
                         item.parent.parent.colour = Color.Red;
                         item = item.parent.parent;
                     }
-                    else if (item == item.parent.right)//Case 2
+                    else //Case 2: uncle is black
                     {
-                        item = item.parent;
-                        LeftRotate(item);
-                    }
-                    //Case 3: recolour & rotate
+                        if (item == item.parent.right)
+                        {
+                            item = item.parent;
+                            LeftRotate(item);
+                        }
+                        //Case 3: recolour & rotate
                     item.parent.colour = Color.Black;
                     item.parent.parent.colour = Color.Red;
                     RightRotate(item.parent.parent);
+                    }
+                    
                 }
                 else
                 {
@@ -247,22 +269,26 @@ namespace newrbtree
                     Node X = null;
 
                     X = item.parent.parent.left;
-                    if (X.colour == Color.Black)//Case 1
+                    if (X != null && X.colour == Color.Black)//Case 1
                     {
                          item.parent.colour = Color.Red;
                          X.colour = Color.Red;
                          item.parent.parent.colour = Color.Black;
                          item = item.parent.parent;
                     }
-                    else if (item == item.parent.left)//Case 2
+                    else //Case 2
                     {
-                         item = item.parent;
-                         RightRotate(item);
-                    }
-                    //Case 3: recolour & rotate
+                        if (item == item.parent.left)
+                        {
+                            item = item.parent;
+                            RightRotate(item);
+                        }
+                        //Case 3: recolour & rotate
                     item.parent.colour = Color.Red;
                     item.parent.parent.colour = Color.Black;
                     LeftRotate(item.parent.parent);
+                    
+                    }
                     
                 }
                 root.colour = Color.Black;//re-colour the root black as necessary

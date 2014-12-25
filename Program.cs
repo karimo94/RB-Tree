@@ -17,6 +17,10 @@ namespace newrbtree
             tree.Insert(9);
             tree.Insert(-1);
             tree.Insert(11);
+            tree.Insert(6);
+
+            tree.Delete(-1);//ok!
+            tree.Delete(9);//problem...
             Console.ReadLine();
         }
     }
@@ -147,11 +151,12 @@ namespace newrbtree
         /// Find item in the tree
         /// </summary>
         /// <param name="key"></param>
-        public void Find(int key)
+        public Node Find(int key)
         {
             bool isFound = false;
             Node temp = root;
-            while (isFound)
+            Node item = null;
+            while (isFound != true)
             {
                 if (temp == null)
                 {
@@ -168,15 +173,18 @@ namespace newrbtree
                 if (key == temp.data)
                 {
                     isFound = true;
+                    item = temp;
                 }
             }
             if (isFound == true)
             {
                 Console.WriteLine("{0} was found", key);
+                return temp;
             }
             else
             {
                 Console.WriteLine("{0} not found", key);
+                return null;
             }
         }
         /// <summary>
@@ -284,8 +292,8 @@ namespace newrbtree
                             RightRotate(item);
                         }
                         //Case 3: recolour & rotate
-                    item.parent.colour = Color.Red;
-                    item.parent.parent.colour = Color.Black;
+                    item.parent.colour = Color.Black;
+                    item.parent.parent.colour = Color.Red;
                     LeftRotate(item.parent.parent);
                     
                     }
@@ -298,61 +306,63 @@ namespace newrbtree
         /// Deletes a specified value from the tree
         /// </summary>
         /// <param name="item"></param>
-        public void Delete(Node item)
+        public void Delete(int key)
         {
-            Node Y = item;
+            //first find the node in the tree to delete and assign to item pointer/reference
+            Node item = Find(key);
             Node X = null;
-            Color original_y_colour = Y.colour;
-            if (item.left == null)
+            Node Y = null;
+            
+            if (item == null)
             {
-                X = item.right;
-                RBTransplant(item, item.right);
+                Console.WriteLine("Nothing to delete!");
+                return;
             }
-            else if (item.right == null)
+            if (item.left == null || item.right == null)
             {
-                X = item.left;
-                RBTransplant(item, item.left);
+                //Y has a NULL node as a child
+                Y = item;
             }
             else
             {
-                Y = TreeMinimum(item.right);
-                original_y_colour = Y.colour;
+                Y = item.right;
+                while (Y.left != null)
+                { Y = Y.left; }
+            }
+            
+            //X is Y's only child
+            if (Y.left != null)
+            {
+                X = Y.left;
+            }
+            if(Y.right != null)
+            {
                 X = Y.right;
-                if (Y.parent == item)
-                {
-                    X.parent = Y;
-                }
-                else
-                {
-                    RBTransplant(Y, Y.right);
-                    Y.right = item.right;
-                    Y.right.parent = Y;
-                }
-                RBTransplant(item, Y);
-                Y.left = item.left;
-                Y.left.parent = Y;
-                Y.colour = item.colour;
             }
-            if (original_y_colour == Color.Black)
+
+            //remove Y from the parent link
+            if(X != null)
+            X.parent = Y.parent;
+            if (Y.parent == null)
             {
-                DeleteFixUp(X);
+                root = X;
             }
-        }
-        private void RBTransplant(Node u, Node v)
-        {
-            if (u.parent == null)
+            if (Y == Y.parent.left)
             {
-                root = v;
+                Y.parent.left = X;
             }
-            else if (u == u.parent.left)
+            if (Y == Y.parent.right)
             {
-                u.parent.left = v;
+                Y.parent.right = X;
             }
-            else
+            if (Y != item)
             {
-                u.parent.right = v;
+                item.data = Y.data;
             }
-            v.parent = u.parent;
+            if (Y.colour == Color.Black)
+            {
+                DeleteFixUp(Y);
+            }
         }
         /// <summary>
         /// Checks the tree for any violations after deletion and performs a fix
@@ -360,12 +370,12 @@ namespace newrbtree
         /// <param name="X"></param>
         private void DeleteFixUp(Node X)
         {
-            Node W = null;
-            while (X != root && X.colour == Color.Black)
+            
+            while (X!= null && X != root && X.colour == Color.Black)
             {
                 if (X == X.parent.left)
                 {
-                    W = X.parent.right;
+                    Node W = X.parent.right;
                     if (W.colour == Color.Red)
                     {
                         W.colour = Color.Black; //case 1
@@ -391,25 +401,25 @@ namespace newrbtree
                     LeftRotate(X.parent); //case 4
                     X = root; //case 4
                 }
-                else //mirror code from above
+                else //mirror code from above with "right" & "left" exchanged
                 {
-                    W = X.parent.left;
-                    if (W.colour == Color.Black)
+                    Node W = X.parent.left;
+                    if (W.colour == Color.Red)
                     {
-                        W.colour = Color.Red;
-                        X.parent.colour = Color.Black;
+                        W.colour = Color.Black;
+                        X.parent.colour = Color.Red;
                         RightRotate(X.parent);
                         W = X.parent.left;
                     }
-                    if (W.right.colour == Color.Red && W.left.colour == Color.Red)
+                    if (W.right.colour == Color.Black && W.left.colour == Color.Black)
                     {
-                        W.colour = Color.Red;
+                        W.colour = Color.Black;
                         X = X.parent;
                     }
-                    else if (W.left.colour == Color.Red)
+                    else if (W.left.colour == Color.Black)
                     {
-                        W.right.colour = Color.Red;
-                        W.colour = Color.Black;
+                        W.right.colour = Color.Black;
+                        W.colour = Color.Red;
                         LeftRotate(W);
                         W = X.parent.left;
                     }
@@ -420,20 +430,8 @@ namespace newrbtree
                     X = root;
                 }
             }
+            if(X != null)
             X.colour = Color.Black;
-        }
-        /// <summary>
-        /// Returns the most minimum node in the tree
-        /// </summary>
-        /// <param name="X"></param>
-        /// <returns>Node</returns>
-        private Node TreeMinimum(Node X)
-        {
-            while (X.left != null)
-            {
-                X = X.left;
-            }
-            return X;
         }
     }
 }

@@ -19,8 +19,9 @@ namespace newrbtree
             tree.Insert(11);
             tree.Insert(6);
 
-            tree.Delete(-1);//ok!
-            tree.Delete(9);//problem...
+            tree.Delete(-1);
+            tree.Delete(9);
+            tree.Delete(5);
             Console.ReadLine();
         }
     }
@@ -320,40 +321,35 @@ namespace newrbtree
             }
             if (item.left == null || item.right == null)
             {
-                //Y has a NULL node as a child
                 Y = item;
             }
             else
             {
-                Y = item.right;
-                while (Y.left != null)
-                { Y = Y.left; }
+                Y = TreeSuccessor(item);
             }
-            
-            //X is Y's only child
             if (Y.left != null)
             {
                 X = Y.left;
             }
-            if(Y.right != null)
+            else
             {
                 X = Y.right;
             }
-
-            //remove Y from the parent link
-            if(X != null)
-            X.parent = Y.parent;
+            if (X != null)
+            {
+                X.parent = Y;
+            } 
             if (Y.parent == null)
             {
                 root = X;
             }
-            if (Y == Y.parent.left)
+            else if (Y == Y.parent.left)
             {
                 Y.parent.left = X;
             }
-            if (Y == Y.parent.right)
+            else
             {
-                Y.parent.right = X;
+                Y.parent.left = X;
             }
             if (Y != item)
             {
@@ -361,8 +357,9 @@ namespace newrbtree
             }
             if (Y.colour == Color.Black)
             {
-                DeleteFixUp(Y);
+                DeleteFixUp(X);
             }
+
         }
         /// <summary>
         /// Checks the tree for any violations after deletion and performs a fix
@@ -409,7 +406,7 @@ namespace newrbtree
                         W.colour = Color.Black;
                         X.parent.colour = Color.Red;
                         RightRotate(X.parent);
-                        W = X.parent.left;
+                        W = X.parent.left;//HERE!!!
                     }
                     if (W.right.colour == Color.Black && W.left.colour == Color.Black)
                     {
@@ -432,6 +429,35 @@ namespace newrbtree
             }
             if(X != null)
             X.colour = Color.Black;
+        }
+        private Node Minimum(Node X)
+        {
+            while (X.left.left != null)
+            {
+                X = X.left;
+            }
+            if (X.left.right != null)
+            {
+                X = X.left.right;
+            }
+            return X;
+        }
+        private Node TreeSuccessor(Node X)
+        {
+            if (X.left != null)
+            {
+                return Minimum(X);
+            }
+            else
+            {
+                Node Y = X.parent;
+                while (Y != null && X == Y.right)
+                {
+                    X = Y;
+                    Y = Y.parent;
+                }
+                return Y;
+            }
         }
     }
 }
